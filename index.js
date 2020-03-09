@@ -31,7 +31,7 @@ var aes256 = {
    * @public
    * @method
    */
-  encrypt: function(key, plaintext) {
+  encrypt: function(key, plaintext,iv) {
     if (typeof key !== 'string' || !key) {
       throw new TypeError('Provided "key" must be a non-empty string');
     }
@@ -39,11 +39,16 @@ var aes256 = {
       throw new TypeError('Provided "plaintext" must be a non-empty string');
     }
 
+    if(iv.length<16){
+      iv+='FNAIUASD7896786a78sdf2323c82';
+    }
+
     var sha256 = crypto.createHash('sha256');
     sha256.update(key);
 
     // Initialization Vector
-    var iv = crypto.randomBytes(16);
+    var iv = new Buffer(iv.toString('hex').slice(0,16));
+  
     var cipher = crypto.createCipheriv(CIPHER_ALGORITHM, sha256.digest(), iv);
 
     var ciphertext = cipher.update(new Buffer(plaintext));
@@ -51,6 +56,7 @@ var aes256 = {
 
     return encrypted;
   },
+
 
   /**
    * Decrypt an encrypted message back to clear-text using AES-256 plus a random Initialization Vector.
